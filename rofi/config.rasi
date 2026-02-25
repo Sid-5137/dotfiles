@@ -1,0 +1,18 @@
+configuration {
+  show-icons: true;
+  icon-theme: "MacTahoe-nord-dark";
+  disable-history: true;
+  sort: false;
+  sorting-method: "fzf";
+  case-sensitive: false;
+  display-drun: "󰣖 drun:";
+  display-ssh:    "󰣀 ssh:";
+  display-run:    "󱓞 run:";
+  display-window: "󱂬 window:";
+  display-combi:  "󰕘 combi:";
+  display-filebrowser: "󰉋 filebrowser:";
+}
+
+//@theme "~/.config/rofi/themes/catppuccin-lavrent-mocha.rasi"
+@theme "~/.config/rofi/themes/tokyo-night-simple.rasi"
+//@theme "/usr/share/rofi/themes/gruvbox-dark-hard.rasi"
