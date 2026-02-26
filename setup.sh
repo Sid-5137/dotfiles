@@ -51,7 +51,11 @@ check_supported_distro() {
 ########################################
 ask_shell_config() {
     read -rp "Use provided .bashrc and Starship config? [y/N]: " ans
-    [[ "$ans" =~ ^[Yy]$ ]] && USE_SHELL_CONFIG=true
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+        USE_SHELL_CONFIG=true
+    else
+        USE_SHELL_CONFIG=false
+    fi
 }
 
 ask_install_mode() {
@@ -61,7 +65,11 @@ ask_install_mode() {
     echo "2) Copy"
     read -rp "Choose [1/2]: " ans
 
-    [[ "$ans" == "2" ]] && INSTALL_MODE="copy"
+    if [[ "$ans" == "2" ]]; then
+        INSTALL_MODE="copy"
+    else
+        INSTALL_MODE="symlink"
+    fi
 
     if [[ "$INSTALL_MODE" == "symlink" ]]; then
         log "Symlink mode selected."
