@@ -52,7 +52,9 @@ check_supported_distro() {
 ########################################
 ask_shell_config() {
     read -rp "Use provided .bashrc and Starship config? [y/N]: " ans
-    [[ "$ans" =~ ^[Yy]$ ]] && USE_SHELL_CONFIG=true
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+        USE_SHELL_CONFIG=true
+    fi
 }
 
 ask_install_mode() {
@@ -73,7 +75,9 @@ ask_install_mode() {
 
 ask_terminal_dots() {
     read -rp "Use provided Kitty and Rofi configs? [y/N]: " ans
-    [[ "$ans" =~ ^[Yy]$ ]] && USE_TERMINAL_DOTS=true
+    if [[ "$ans" =~ ^[Yy]$ ]]; then
+        USE_TERMINAL_DOTS=true
+    fi
 }
 
 ########################################
