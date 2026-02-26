@@ -5,7 +5,6 @@ set -Eeuo pipefail
 # Paths
 ########################################
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MANGOWC_REPO="${MANGOWC_REPO:-https://github.com/mangowc/mango}"
 SUDO="$(command -v sudo >/dev/null 2>&1 && echo sudo || echo '')"
 
 ########################################
@@ -19,20 +18,12 @@ err()  { printf '[ERROR] %s\n' "$*" >&2; exit 1; }
 # User Preferences
 ########################################
 USE_SHELL_CONFIG=false
-INSTALL_MODE="symlink"   # symlink | copy
+INSTALL_MODE="symlink"
 
 ########################################
 # Utils
 ########################################
 cmd() { command -v "$1" >/dev/null 2>&1; }
-
-detect_pkg_manager() {
-    cmd apt-get && { echo apt; return; }
-    cmd dnf     && { echo dnf; return; }
-    cmd pacman  && { echo pacman; return; }
-    cmd zypper  && { echo zypper; return; }
-    err "No supported package manager found"
-}
 
 detect_distro() {
     if [[ -f /etc/os-release ]]; then
@@ -44,109 +35,56 @@ detect_distro() {
 }
 
 ########################################
-# Support Notice
+# Arch/Fedora Guard
 ########################################
-print_support_notice() {
-cat <<'EOF'
+check_supported_distro() {
+    distro="$(detect_distro)"
+    log "Detected distro: $distro"
 
-========================================================
-MangoWC Setup Script – Distro Support Notice
-========================================================
-✔ Fully automated support:
-  - Arch Linux
-  - Fedora
-
-⚠ Partial support:
-  - Debian / Ubuntu / openSUSE / others
-
-Noctalia automated install works only on:
-  - Arch (AUR)
-  - Fedora (Terra repo)
-
-Manual guide:
-https://docs.noctalia.dev/getting-started/installation/
-
-========================================================
-
-EOF
-}
-
-confirm_continue() {
-    read -rp "This distro is not fully supported. Continue anyway? [y/N]: " ans
-    case "$ans" in
-        y|Y) ;;
-        *) log "Aborting setup."; exit 1 ;;
-    esac
+    if [[ "$distro" != "arch" && "$distro" != "fedora" ]]; then
+        err "This installer supports only Arch Linux and Fedora."
+    fi
 }
 
 ########################################
 # Preference Prompts
 ########################################
 ask_shell_config() {
-    echo
-    echo "Shell Configuration"
-    echo "--------------------"
     read -rp "Use provided .bashrc and Starship config? [y/N]: " ans
-    case "$ans" in
-        y|Y)
-            USE_SHELL_CONFIG=true
-            log "Shell configuration enabled."
-            ;;
-        *)
-            log "Skipping shell configuration."
-            ;;
-    esac
+    [[ "$ans" =~ ^[Yy]$ ]] && USE_SHELL_CONFIG=true
 }
 
 ask_install_mode() {
     echo
-    echo "Dotfile Installation Mode"
-    echo "--------------------------"
-    echo "1) Symlink (recommended)"
-    echo "2) Copy files (standalone)"
-    read -rp "Choose installation mode [1/2]: " ans
+    echo "Installation mode:"
+    echo "1) Symlink"
+    echo "2) Copy"
+    read -rp "Choose [1/2]: " ans
 
-    case "$ans" in
-        2)
-            INSTALL_MODE="copy"
-            log "Using COPY mode."
-            ;;
-        *)
-            INSTALL_MODE="symlink"
-            log "Using SYMLINK mode."
-            ;;
-    esac
+    [[ "$ans" == "2" ]] && INSTALL_MODE="copy"
+
+    if [[ "$INSTALL_MODE" == "symlink" ]]; then
+        log "Symlink mode selected."
+        log "Configuration files will depend on this repository path:"
+        log "$SCRIPT_DIR"
+    fi
 }
 
 ########################################
-# Package Install Helper
+# Install Helpers
 ########################################
-install_pkgs() {
-    local pm="$1"; shift
-    case "$pm" in
-        apt)
-            $SUDO apt-get update
-            $SUDO apt-get install -y "$@"
-            ;;
-        dnf)
-            $SUDO dnf install -y "$@"
-            ;;
-        pacman)
-            $SUDO pacman -Sy --needed --noconfirm "$@"
-            ;;
-        zypper)
-            $SUDO zypper --non-interactive install "$@"
-            ;;
-    esac
+install_arch() {
+    if cmd yay; then
+        yay -S --needed --noconfirm "$@"
+    elif cmd paru; then
+        paru -S --needed --noconfirm "$@"
+    else
+        err "No AUR helper found (yay/paru required)."
+    fi
 }
 
-########################################
-# Dependencies
-########################################
-install_dependencies() {
-    local pm="$1"
-    log "Installing MangoWC dependencies ($pm)"
-    install_pkgs "$pm" git curl meson ninja cmake pkg-config
+install_fedora() {
+    $SUDO dnf install -y "$@"
 }
 
 ########################################
@@ -158,16 +96,11 @@ install_mangowc() {
         return
     fi
 
-    log "Building MangoWC from source"
-    tmp="$(mktemp -d)"
-    git clone --depth=1 "$MANGOWC_REPO" "$tmp/mango"
-    (
-        cd "$tmp/mango"
-        meson setup build
-        ninja -C build
-        $SUDO ninja -C build install
-    )
-    rm -rf "$tmp"
+    if [[ "$(detect_distro)" == "arch" ]]; then
+        install_arch mangowc-git
+    else
+        install_fedora mangowc
+    fi
 }
 
 ########################################
@@ -177,11 +110,9 @@ install_starship() {
     [[ "$USE_SHELL_CONFIG" == "true" ]] || return
 
     if cmd starship; then
-        log "Starship already installed"
         return
     fi
 
-    log "Installing Starship"
     mkdir -p "$HOME/.local/bin"
     curl -sS https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin"
 }
@@ -195,65 +126,47 @@ install_bashrc() {
 # Noctalia
 ########################################
 install_noctalia() {
-    local pm="$1"
-
     if cmd noctalia-shell; then
-        log "Noctalia already installed"
         return
     fi
 
-    case "$pm" in
-        pacman)
-            if cmd yay; then
-                yay -S --needed --noconfirm noctalia-shell
-            elif cmd paru; then
-                paru -S --needed --noconfirm noctalia-shell
-            else
-                warn "No AUR helper found."
-            fi
-            ;;
-        dnf)
-            if ! rpm -q terra-release >/dev/null 2>&1; then
-                $SUDO dnf install -y \
-                  --nogpgcheck \
-                  --repofrompath="terra,https://repos.fyralabs.com/terra\$releasever" \
-                  terra-release
-            fi
-            $SUDO dnf makecache -y
-            install_pkgs "$pm" noctalia-shell
-            ;;
-        *)
-            warn "Noctalia auto-install unsupported on this distro."
-            ;;
-    esac
+    if [[ "$(detect_distro)" == "arch" ]]; then
+        install_arch noctalia-shell
+    else
+        if ! rpm -q terra-release >/dev/null 2>&1; then
+            $SUDO dnf install -y \
+              --nogpgcheck \
+              --repofrompath="terra,https://repos.fyralabs.com/terra\$releasever" \
+              terra-release
+        fi
+        $SUDO dnf makecache -y
+        install_fedora noctalia-shell
+    fi
 }
 
 ########################################
 # SDDM + Astronaut
 ########################################
 install_sddm_astronaut() {
-    local pm="$1"
-
     current_dm=""
     if [[ -L /etc/systemd/system/display-manager.service ]]; then
         current_dm="$(readlink -f /etc/systemd/system/display-manager.service)"
     fi
 
     if [[ -n "$current_dm" ]]; then
-        log "Display manager detected."
         if ! cmd sddm; then
             read -rp "Install SDDM alongside existing DM? [y/N]: " ans
             [[ "$ans" =~ ^[Yy]$ ]] || return
-            install_pkgs "$pm" sddm
         fi
     else
         read -rp "No display manager found. Install SDDM? [y/N]: " ans
         [[ "$ans" =~ ^[Yy]$ ]] || return
-        install_pkgs "$pm" sddm
     fi
 
-    if ! cmd sddm; then
-        return
+    if [[ "$(detect_distro)" == "arch" ]]; then
+        $SUDO pacman -Sy --needed --noconfirm sddm
+    else
+        install_fedora sddm
     fi
 
     tmp="$(mktemp -d)"
@@ -266,13 +179,13 @@ install_sddm_astronaut() {
 }
 
 ########################################
-# Install Path (Symlink or Copy)
+# Install Path
 ########################################
 install_path() {
     local src="$1"
     local dest="$2"
 
-    [[ -e "$src" ]] || { warn "Source not found: $src"; return; }
+    [[ -e "$src" ]] || { warn "Missing: $src"; return; }
 
     mkdir -p "$(dirname "$dest")"
 
@@ -286,10 +199,8 @@ install_path() {
         else
             cp "$src" "$dest"
         fi
-        log "Copied $src → $dest"
     else
         ln -sf "$src" "$dest"
-        log "Linked $dest → $src"
     fi
 }
 
@@ -307,25 +218,14 @@ link_configs() {
 # Main
 ########################################
 main() {
-    pm="$(detect_pkg_manager)"
-    distro="$(detect_distro)"
-
-    log "Detected package manager: $pm"
-    log "Detected distro: $distro"
-
-    if [[ "$distro" != "arch" && "$distro" != "fedora" ]]; then
-        print_support_notice
-        confirm_continue
-    fi
-
+    check_supported_distro
     ask_shell_config
     ask_install_mode
 
-    install_dependencies "$pm"
     install_mangowc
     install_starship
-    install_noctalia "$pm"
-    install_sddm_astronaut "$pm"
+    install_noctalia
+    install_sddm_astronaut
     install_bashrc
     link_configs
 
