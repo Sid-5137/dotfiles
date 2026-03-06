@@ -1,0 +1,119 @@
+/**
+ * Colloid Dark Nord Rofi Theme
+ */
+
+* {
+    font: "JetBrainsMono Nerd Font Mono 12";
+
+    base: #242932;
+    panel: #2B303B;
+    panel2: #343A46;
+
+    text: #ECEFF4;
+    text-muted: #D8DEE9;
+
+    accent-blue: #81A1C1;
+    accent-cyan: #88C0D0;
+    accent-green: #A3BE8C;
+    accent-red: #BF616A;
+
+    foreground: @text-muted;
+    background-color: transparent;
+
+    highlight: underline bold #ECEFF4;
+
+    transparent: rgba(36,41,50,0);
+}
+
+window {
+    location: center;
+    anchor: center;
+
+    /* allows compositor blur */
+    background-color: rgba(36,41,50,0.55);
+
+    padding: 10px;
+    border: 0px;
+    border-radius: 10px;
+
+    width: 500px;
+    spacing: 0;
+    children: [mainbox];
+    orientation: horizontal;
+}
+
+mainbox {
+    spacing: 0;
+    children: [ inputbar, message, listview ];
+}
+
+message {
+    color: @base;
+    padding: 5;
+    border: 0px 2px 2px 2px;
+    border-color: @accent-blue;
+    background-color: @accent-cyan;
+}
+
+inputbar {
+    color: @text;
+    padding: 11px;
+    background-color: @panel;
+
+    border: 1px;
+    border-radius: 10px 10px 0px 0px;
+    border-color: @accent-blue;
+}
+
+entry, prompt, case-indicator {
+    text-font: inherit;
+    text-color: inherit;
+}
+
+prompt {
+    margin: 0px 1em 0em 0em;
+}
+
+listview {
+    padding: 8px;
+    border-radius: 0px 0px 10px 10px;
+    border: 0px 1px 1px 1px;
+    border-color: @accent-blue;
+
+    /* semi transparent for blur */
+    background-color: rgba(36,41,50,0.65);
+
+    dynamic: false;
+}
+
+element {
+    padding: 4px;
+    border-radius: 6px;
+    background-color: transparent;
+
+    color: @text;
+}
+
+element selected.normal {
+    background-color: @accent-blue;
+    text-color: #1E222A;
+}
+
+element-text, element-icon {
+    background-color: inherit;
+    text-color: inherit;
+}
+
+button {
+    padding: 6px;
+    color: @foreground;
+    horizontal-align: 0.5;
+
+    border: 2px 0px 2px 2px;
+    border-radius: 6px 0px 0px 6px;
+    border-color: @accent-blue;
+}
+
+button selected normal {
+    border-color: @accent-blue;
+}
