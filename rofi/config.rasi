@@ -1,32 +1,14 @@
 configuration {
-  show-icons: true;
-  icon-theme: "MacTahoe-nord-dark";
-  disable-history: true;
-  sort: false;
-  sorting-method: "fzf";
-  case-sensitive: false;
-  display-drun: "󰣖 drun:";
-  display-ssh:    "󰣀 ssh:";
-  display-run:    "󱓞 run:";
-  display-window: "󱂬 window:";
-  display-combi:  "󰕘 combi:";
-  display-filebrowser: "󰉋 filebrowser:";
+  show-icons:           true;
+  icon-theme:           "MacTahoe-nord-dark";
+  disable-history:      true;
+  sort:                 false;
+  sorting-method:       "fzf";
+  case-sensitive:       false;
+  display-drun:         "󰀻 Apps";
+  display-ssh:          "󰣀 SSH";
+  display-run:          "󰆍 Run";
+  display-window:       "󱂬 Windows";
+  display-combi:        "󰕘 Combi";
+  display-filebrowser:  "󰉋 Files";
 }
-
-//@theme "~/.config/rofi/themes/catppuccin-lavrent-mocha.rasi"
-//@theme "~/.config/rofi/themes/tokyo-night-simple.rasi"
-//@theme "~/.config/rofi/themes/rounded_nord.rasi"
-//@theme "~/.config/rofi/themes/new-nord.rasi"
-//@theme "/usr/share/rofi/themes/gruvbox-dark-hard.rasi"
-
-//@theme "/home/sid/.config/rofi/themes/catppuccin-lavrent-mocha.rasi"
-
-//@theme "/home/sid/.config/rofi/themes/tokyo-night-simple.rasi"
-
-//@theme "/home/sid/.config/rofi/themes/new-nord.rasi"
-
-//@theme "/home/sid/.config/rofi/themes/colloid-nord.rasi"
-
-//@theme "/home/sid/.config/rofi/themes/nord.rasi"
-
-@theme "/home/sid/.config/rofi/themes/colloid-nord.rasi"

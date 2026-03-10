@@ -1,18 +1,6 @@
-/**
- * Nord Launcher – Spotlight Centered
- *
- * rofi -show drun -modi "drun,run,window" -show-icons \
- *      -kb-element-next "" \
- *      -kb-element-prev "" \
- *      -kb-mode-next Tab \
- *      -kb-mode-previous ISO_Left_Tab \
- *      -theme ~/.config/rofi/nord-launcher.rasi
- *
- * For blur (hyprland): add `blur { enabled = true }` to your
- * windowrule: `windowrulev2 = blur, class:^(rofi)$`
- *
- * For blur (picom): add `blur-background = true` and whitelist rofi
- */
+/*
+	 Nord Launcher – Spotlight Centered
+*/
 
 /* ── Palette ─────────────────────────────── */
 * {
@@ -21,10 +9,9 @@
     nord10:           #5E81AC;
     nord11:           #BF616A;
 
-    /* Blur-friendly layers — lower alpha = more blur visible */
-    layer0:           rgba(35, 38, 46, 0.78);   /* window shell        */
-    layer1:           rgba(40, 44, 54, 0.72);   /* tab strip / listbg  */
-    layer3:           rgba(55, 62, 78, 0.92);   /* selected row        */
+    layer0:           rgba(35, 38, 46, 0.78);
+    layer1:           rgba(40, 44, 54, 0.72);
+    layer3:           rgba(55, 62, 78, 0.92);
 
     border-subtle:    rgba(136, 192, 208, 0.10);
     border-active:    rgba(136, 192, 208, 0.25);
@@ -35,8 +22,8 @@
     fg:               #C8D0E0;
     fg-bright:        #ECEFF4;
     fg-dim:           #4E5A6E;
-    fg-tab-inactive:  #8892A4;   /* clearly readable but muted     */
-    fg-tab-active:    #ECEFF4;   /* bright white for active tab     */
+    fg-tab-inactive:  #8892A4;
+    fg-tab-active:    #ECEFF4;
 
     urgent:           #BF616A;
 
@@ -54,7 +41,7 @@ window {
     background-color: @layer0;
     border:           1px solid;
     border-color:     @border-active;
-    border-radius:    16px;
+    border-radius:    10px;          /* reduced from 16px */
     padding:          0px;
     children:         [mainbox];
 }
@@ -72,7 +59,7 @@ inputbar {
     background-color: transparent;
     padding:          18px 20px 16px 20px;
     spacing:          14px;
-    border-radius:    16px 16px 0px 0px;
+    border-radius:    10px 10px 0px 0px;   /* matches window top radius */
     children:         [prompt, entry, case-indicator];
 }
 
@@ -105,14 +92,14 @@ mode-switcher {
     border-top:       1px solid;
     border-bottom:    1px solid;
     border-color:     @border-subtle;
-    padding:          0px 16px;
-    spacing:          0px;
+    padding:          5px 12px;      /* vertical padding so pills have room */
+    spacing:          6px;
 }
 
-/* Base button — inactive */
+/* Base button — inactive pill */
 button {
-    padding:          8px 24px;
-    border-radius:    0px;
+    padding:          5px 20px;
+    border-radius:    20px;          /* full pill shape */
     border:           0px solid;
     background-color: transparent;
     text-color:       @fg-tab-inactive;
@@ -121,18 +108,19 @@ button {
     horizontal-align: 0.5;
 }
 
-/* Active tab — background pill + bright text */
+/* Active tab — filled pill */
 button selected {
-    background-color: rgba(136, 192, 208, 0.12);
+    background-color: rgba(136, 192, 208, 0.15);
     text-color:       @fg-tab-active;
-    border:           0px solid;
-    border-radius:    0px;
+    border:           1px solid;
+    border-color:     rgba(136, 192, 208, 0.30);
+    border-radius:    20px;
 }
 
 /* ── List View ───────────────────────────── */
 listview {
     background-color: @layer1;
-    border-radius:    0px 0px 16px 16px;
+    border-radius:    0px 0px 10px 10px;   /* matches window bottom radius */
     padding:          6px 8px 10px 8px;
     spacing:          1px;
     lines:            7;
@@ -145,7 +133,7 @@ listview {
 /* ── Elements ────────────────────────────── */
 element {
     padding:          9px 12px 9px 10px;
-    border-radius:    8px;
+    border-radius:    6px;           /* reduced from 8px */
     background-color: transparent;
     spacing:          14px;
     orientation:      horizontal;
