@@ -1,6 +1,5 @@
 configuration {
   show-icons:           true;
-  icon-theme:           "MacTahoe-nord-dark";
   disable-history:      true;
   sort:                 false;
   sorting-method:       "fzf";

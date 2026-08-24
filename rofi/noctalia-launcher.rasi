@@ -1,31 +1,27 @@
 /*
-	 Nord Launcher – Spotlight Centered
+	 Noctalia Launcher – Spotlight Centered
+	 (recolored from the Nord launcher; layout unchanged)
 */
 
 /* ── Palette ─────────────────────────────── */
 * {
-    nord8:            #88C0D0;
-    nord9:            #81A1C1;
-    nord10:           #5E81AC;
-    nord11:           #BF616A;
+    layer0:           rgba(20, 19, 20, 0.85);
+    layer1:           rgba(32, 31, 34, 0.80);
+    layer3:           rgba(71, 70, 76, 0.92);
 
-    layer0:           rgba(35, 38, 46, 0.78);
-    layer1:           rgba(40, 44, 54, 0.72);
-    layer3:           rgba(55, 62, 78, 0.92);
+    border-subtle:    rgba(218, 191, 206, 0.10);
+    border-active:    rgba(218, 191, 206, 0.25);
 
-    border-subtle:    rgba(136, 192, 208, 0.10);
-    border-active:    rgba(136, 192, 208, 0.25);
+    accent:           #dabfce;
+    accent-dim:       #c5c5d8;
 
-    accent:           #88C0D0;
-    accent-dim:       #5E81AC;
+    fg:               #c7c5ce;
+    fg-bright:        #e5e1e3;
+    fg-dim:           #919096;
+    fg-tab-inactive:  #919096;
+    fg-tab-active:    #e5e1e3;
 
-    fg:               #C8D0E0;
-    fg-bright:        #ECEFF4;
-    fg-dim:           #4E5A6E;
-    fg-tab-inactive:  #8892A4;
-    fg-tab-active:    #ECEFF4;
-
-    urgent:           #BF616A;
+    urgent:           #ffb4ab;
 
     font:             "JetBrainsMono Nerd Font Mono 12";
     background-color: transparent;
@@ -110,10 +106,10 @@ button {
 
 /* Active tab — filled pill */
 button selected {
-    background-color: rgba(136, 192, 208, 0.15);
+    background-color: rgba(218, 191, 206, 0.15);
     text-color:       @fg-tab-active;
     border:           1px solid;
-    border-color:     rgba(136, 192, 208, 0.30);
+    border-color:     rgba(218, 191, 206, 0.30);
     border-radius:    20px;
 }
 
@@ -167,13 +163,13 @@ element selected.normal {
 }
 
 element selected.urgent {
-    background-color: rgba(191, 97, 106, 0.18);
+    background-color: rgba(255, 180, 171, 0.18);
     text-color:       @urgent;
     border-color:     @urgent;
 }
 
 element selected.active {
-    background-color: rgba(94, 129, 172, 0.20);
+    background-color: rgba(197, 197, 216, 0.20);
     text-color:       @accent;
     border-color:     @accent-dim;
 }

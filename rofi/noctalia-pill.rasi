@@ -1,0 +1,157 @@
+/*
+	 Noctalia Pill – tiny floating search, apps only
+*/
+
+/* ── Palette ─────────────────────────────── */
+* {
+    pill:             rgba(20, 19, 20, 0.96);
+    panel:            rgba(20, 19, 20, 0.94);
+    sel:              rgba(71, 70, 76, 0.60);
+
+    border-col:       rgba(218, 191, 206, 0.22);
+
+    accent:           #dabfce;
+    fg:               #c7c5ce;
+    fg-bright:        #e5e1e3;
+    fg-dim:           #919096;
+    urgent:           #ffb4ab;
+
+    font:             "JetBrainsMono Nerd Font Mono 12";
+    background-color: transparent;
+    text-color:       @fg;
+    border-color:     transparent;
+}
+
+/* ── Window (floating, upper third) ──────── */
+window {
+    location:         center;
+    anchor:           center;
+    y-offset:         -170px;         /* float it up toward the top */
+    width:            460px;
+    background-color: transparent;
+    border:           0px;
+    padding:          0px;
+    children:         [mainbox];
+}
+
+mainbox {
+    background-color: transparent;
+    spacing:          10px;
+    padding:          0px;
+    children:         [inputbar, listview];
+}
+
+/* ── The search pill ─────────────────────── */
+inputbar {
+    background-color: @pill;
+    border:           1px solid;
+    border-color:     @border-col;
+    border-radius:    24px;            /* fully rounded ends = pill */
+    padding:          14px 20px;
+    spacing:          12px;
+    children:         [prompt, entry];
+}
+
+prompt {
+    text-color:       @accent;
+    vertical-align:   0.5;
+    font:             "JetBrainsMono Nerd Font Mono 14";
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @fg-bright;
+    placeholder:      "Search apps";
+    placeholder-color: @fg-dim;
+    vertical-align:   0.5;
+    cursor:           text;
+    font:             "JetBrainsMono Nerd Font Mono 14";
+}
+
+/* ── Results (shrinks to fit) ────────────── */
+listview {
+    background-color: @panel;
+    border:           1px solid;
+    border-color:     @border-col;
+    border-radius:    16px;
+    padding:          6px;
+    spacing:          2px;
+    lines:            6;
+    columns:          1;
+    dynamic:          true;            /* height follows number of matches */
+    scrollbar:        false;
+    cycle:            true;
+}
+
+element {
+    padding:          9px 14px;
+    border-radius:    10px;
+    background-color: transparent;
+    spacing:          12px;
+    orientation:      horizontal;
+    border:           0px;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element normal.urgent {
+    background-color: transparent;
+    text-color:       @urgent;
+}
+
+element normal.active {
+    background-color: transparent;
+    text-color:       @accent;
+}
+
+element selected.normal {
+    background-color: @sel;
+    text-color:       @fg-bright;
+}
+
+element selected.urgent {
+    background-color: rgba(255, 180, 171, 0.16);
+    text-color:       @urgent;
+}
+
+element selected.active {
+    background-color: @sel;
+    text-color:       @accent;
+}
+
+element-icon {
+    background-color: transparent;
+    size:             20px;
+    vertical-align:   0.5;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+    font:             "JetBrainsMono Nerd Font Mono 12";
+}
+
+/* ── Message / Error ─────────────────────── */
+message {
+    background-color: @panel;
+    border:           1px solid;
+    border-color:     @border-col;
+    border-radius:    16px;
+    padding:          8px 14px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color:       @accent;
+    font:             "JetBrainsMono Nerd Font Mono 11";
+}
+
+error-message {
+    background-color: @panel;
+    border-radius:    16px;
+    padding:          8px 14px;
+}

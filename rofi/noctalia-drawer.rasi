@@ -1,0 +1,172 @@
+/*
+	 Noctalia Drawer – full-height left dock, apps only
+*/
+
+/* ── Palette ─────────────────────────────── */
+* {
+    bg:               rgba(20, 19, 20, 0.96);
+    field:            rgba(71, 70, 76, 0.28);
+    sel:              rgba(71, 70, 76, 0.55);
+
+    spine:            #dabfce;
+    line-col:         rgba(145, 144, 150, 0.16);
+
+    accent:           #dabfce;
+    fg:               #c7c5ce;
+    fg-bright:        #e5e1e3;
+    fg-dim:           #919096;
+    urgent:           #ffb4ab;
+
+    font:             "JetBrainsMono Nerd Font Mono 12";
+    background-color: transparent;
+    text-color:       @fg;
+    border-color:     transparent;
+}
+
+/* ── Window (docked left, full height) ───── */
+window {
+    location:         west;
+    anchor:           west;
+    width:            360px;
+    height:           100%;
+    background-color: @bg;
+    border:           0px 2px 0px 0px;   /* accent spine on the right edge only */
+    border-color:     @spine;
+    border-radius:    0px;
+    padding:          0px;
+    children:         [mainbox];
+}
+
+mainbox {
+    background-color: transparent;
+    spacing:          0px;
+    padding:          0px;
+    children:         [header, inputbar, listview];
+}
+
+/* ── Header strip ────────────────────────── */
+header {
+    background-color: transparent;
+    padding:          20px 20px 6px 20px;
+    children:         [textbox-title];
+}
+
+textbox-title {
+    background-color: transparent;
+    text-color:       @fg-dim;
+    content:          "󰀻  Applications";
+    font:             "JetBrainsMono Nerd Font Mono 11";
+    vertical-align:   0.5;
+}
+
+/* ── Search field ────────────────────────── */
+inputbar {
+    background-color: @field;
+    margin:           4px 20px 10px 20px;
+    padding:          10px 12px;
+    spacing:          10px;
+    children:         [prompt, entry];
+}
+
+prompt {
+    text-color:       @accent;
+    vertical-align:   0.5;
+    font:             "JetBrainsMono Nerd Font Mono 13";
+}
+
+entry {
+    background-color: transparent;
+    text-color:       @fg-bright;
+    placeholder:      "Search";
+    placeholder-color: @fg-dim;
+    vertical-align:   0.5;
+    cursor:           text;
+    font:             "JetBrainsMono Nerd Font Mono 13";
+}
+
+/* ── App list ────────────────────────────── */
+listview {
+    background-color: transparent;
+    padding:          4px 12px 12px 12px;
+    spacing:          2px;
+    lines:            12;
+    columns:          1;
+    dynamic:          false;
+    scrollbar:        false;
+    cycle:            true;
+}
+
+element {
+    padding:          10px 12px;
+    border-radius:    0px;
+    background-color: transparent;
+    spacing:          14px;
+    orientation:      horizontal;
+    border:           0px;
+    border-left:      3px solid;
+    border-color:     transparent;
+}
+
+element normal.normal {
+    background-color: transparent;
+    text-color:       @fg;
+}
+
+element normal.urgent {
+    background-color: transparent;
+    text-color:       @urgent;
+}
+
+element normal.active {
+    background-color: transparent;
+    text-color:       @accent;
+}
+
+element selected.normal {
+    background-color: @sel;
+    text-color:       @fg-bright;
+    border-color:     @accent;
+}
+
+element selected.urgent {
+    background-color: rgba(255, 180, 171, 0.16);
+    text-color:       @urgent;
+    border-color:     @urgent;
+}
+
+element selected.active {
+    background-color: @sel;
+    text-color:       @accent;
+    border-color:     @accent;
+}
+
+element-icon {
+    background-color: transparent;
+    size:             26px;
+    vertical-align:   0.5;
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+    font:             "JetBrainsMono Nerd Font Mono 12";
+}
+
+/* ── Message / Error ─────────────────────── */
+message {
+    background-color: @field;
+    margin:           0px 20px 10px 20px;
+    padding:          8px 12px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color:       @accent;
+    font:             "JetBrainsMono Nerd Font Mono 11";
+}
+
+error-message {
+    background-color: @field;
+    padding:          8px 12px;
+}

@@ -237,6 +237,8 @@ alias docker-clean=' \
   docker network prune -f ; \
   docker volume prune -f '
 
+alias linoffice='/home/sid/.local/bin/linoffice/linoffice.sh'
+
 # Mounts (Requires Root)
 # mount -o loop /home/NAMEOFISO.iso /home/ISOMOUNTDIR/
 # umount /home/NAMEOFISO.iso

@@ -1,0 +1,38 @@
+-- ─────────────────────────────────────────────────────────────
+-- Workspace rules
+-- https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
+-- ─────────────────────────────────────────────────────────────
+-- Your old workspaces.conf was empty, so nothing was carried over.
+-- Everything below is optional; uncomment what you want.
+
+-- Persistent workspaces. Noctalia's workspace indicator only shows
+-- workspaces that exist, so making them persistent keeps empty slots
+-- visible in the bar instead of popping in and out.
+--
+-- for i = 1, 5 do
+--     hl.workspace_rule({ workspace = tostring(i), monitor = "eDP-1", persistent = true })
+-- end
+
+-- Named workspaces, if you'd rather label them than number them:
+--
+-- hl.workspace_rule({ workspace = "1", monitor = "eDP-1", persistent = true, default_name = "web" })
+-- hl.workspace_rule({ workspace = "2", monitor = "eDP-1", persistent = true, default_name = "code" })
+-- hl.workspace_rule({ workspace = "3", monitor = "eDP-1", persistent = true, default_name = "chat" })
+
+-- "Smart gaps" / no gaps when only one tiled window is on screen.
+--
+-- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+-- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
+--
+-- hl.window_rule({
+--     name  = "no-gaps-wtv1",
+--     match = { float = false, workspace = "w[tv1]" },
+--     border_size = 0,
+--     rounding    = 0,
+-- })
+-- hl.window_rule({
+--     name  = "no-gaps-f1",
+--     match = { float = false, workspace = "f[1]" },
+--     border_size = 0,
+--     rounding    = 0,
+-- })
