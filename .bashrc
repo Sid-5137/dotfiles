@@ -602,3 +602,4 @@ if ! ssh-add -l >/dev/null 2>&1; then
 fi
 
 export PATH=$PATH:/home/sid/.spicetify
+. "$HOME/.cargo/env"
