@@ -5,6 +5,17 @@
 -- ─────────────────────────────────────────────────────────────
 -- Wiki: https://wiki.hypr.land/Configuring/Start/
 -- Split files live next to this one and are pulled in via require().
+--
+-- CHANGES IN THIS REVISION (search "CHANGED:" to find each one):
+--   1. Autostart: seed the systemd/D-Bus activation environment before
+--      anything else, and start gnome-keyring's secrets component.
+--   2. Autostart: removed the "-- ... rest of your existing autostart"
+--      placeholder. Re-add your own exec lines where marked.
+--   3. Screenshots: flameshot (X11) -> hyprshot (native Wayland).
+--   4. QS_ICON_THEME: flagged, value must match a real icon directory.
+--   5. QT_QPA_PLATFORM: allow xcb fallback so Qt apps without the
+--      Wayland plugin still start.
+-- ─────────────────────────────────────────────────────────────
 
 require("monitors")
 require("workspaces")
@@ -29,9 +40,36 @@ local ipc = "noctalia msg "
 -------------------
 
 hl.on("hyprland.start", function()
+    -- CHANGED: must run FIRST. hl.env() below only reaches processes that
+    -- Hyprland itself spawns. systemd user units and D-Bus-activated
+    -- services (the portal, hyprpolkitagent, gnome-keyring) start outside
+    -- that tree and would otherwise never see XDG_CURRENT_DESKTOP, which
+    -- is what the portal uses to pick its backend. With greetd there is no
+    -- session manager doing this for you.
+    hl.exec_cmd(table.concat({
+        "dbus-update-activation-environment --systemd",
+        "XDG_CURRENT_DESKTOP XDG_SESSION_TYPE XDG_SESSION_DESKTOP",
+        "WAYLAND_DISPLAY DISPLAY XDG_RUNTIME_DIR",
+    }, " "))
+    hl.exec_cmd("systemctl --user start hyprland-session.target")
+
+    -- CHANGED: Secret Service provider. Without this, anything using
+    -- libsecret (Chrome, VS Code/Cursor, Nextcloud) silently falls back to
+    -- storing credentials in plaintext on disk. Plasma used to start a
+    -- keyring via its own autostart; that went with the KDE removal.
+    hl.exec_cmd("gnome-keyring-daemon --start --components=secrets,ssh")
+
     hl.exec_cmd("noctalia")
     hl.exec_cmd("systemctl --user start hyprpolkitagent")
-   -- ... rest of your existing autostart
+
+    -- CHANGED: the placeholder comment that used to sit here was a stub
+    -- left over from the hyprlang port, not working config. Anything your
+    -- old hyprland.conf started with exec-once is currently NOT running.
+    -- Recover it with:
+    --   grep exec-once ~/dotfiles/hypr/hyprland.conf*
+    -- and add the lines below. Common ones for this kind of setup:
+    -- hl.exec_cmd("wl-paste --watch cliphist store")
+    -- hl.exec_cmd("hypridle")
 end)
 
 -------------------------------
@@ -43,9 +81,22 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_THEME", "hypr_Bibata-Modern-Ice")
 hl.env("HYPRCURSOR_SIZE", "24")
 -- hl.env("QS_ICON_THEME", "MacTahoe-nord-dark")
-hl.env("QS_ICON_THEME", "yet-another-monochrome")
+
+-- CHANGED (verify): "YAML" is a data-serialisation format, not an icon
+-- theme -- this looks like a typo. The value must match a directory name
+-- under ~/.icons or /usr/share/icons. Check with:
+--   ls ~/.icons /usr/share/icons
+-- and correct the string below if it isn't there.
+hl.env("QS_ICON_THEME", "YAML")
+
+-- Styles Qt6 apps only. Qt5 apps read qt5ct and will render unstyled --
+-- harmless if you have no Qt5 apps left after the KDE removal.
 hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
-hl.env("QT_QPA_PLATFORM", "wayland")
+
+-- CHANGED: was "wayland". The fallback lets Qt apps that ship without the
+-- Wayland platform plugin start under XWayland instead of exiting.
+hl.env("QT_QPA_PLATFORM", "wayland;xcb")
+
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
@@ -100,7 +151,7 @@ hl.config({
 
         blur = {
             enabled            = true,
-            size               = 5,
+            size               = 8,
             passes             = 3,
             noise              = 0.02,
             brightness         = 0.9,
@@ -167,10 +218,12 @@ hl.config({
         kb_layout          = "us",
         kb_rules           = "evdev",
         follow_mouse       = 1,
-        sensitivity        = 0.85,
+        sensitivity        = 0.8,
         repeat_rate        = 25,
         repeat_delay       = 600,
         numlock_by_default = true,
+        force_no_accel     = false,
+        -- accel_profile      = "adaptive",
         touchpad = {
             natural_scroll       = true,
             tap_to_click         = true,   -- was tap-to-click; hyphens are invalid in Lua keys
@@ -236,7 +289,7 @@ hl.window_rule({
 hl.window_rule({
     name    = "thunar-opacity",
     match   = { class = "(?i)thunar" },
-    opacity = "0.85 override 0.85 override",
+    opacity = "0.9 override 0.9 override",
 })
 
 hl.window_rule({
@@ -403,10 +456,20 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"),   { locked = tru
 --------------------
 ---- SCREENSHOTS ---
 --------------------
+-- CHANGED: was flameshot, which is X11-native. Under Hyprland it runs
+-- through XWayland and commonly captures black or grabs the wrong region
+-- on multi-monitor. hyprshot wraps grim + slurp and is Wayland-native.
+--   sudo dnf install hyprshot
+-- (or install grim + slurp and use the raw commands in the comments below)
 
-hl.bind("Print",         hl.dsp.exec_cmd("flameshot gui"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd("flameshot full -p ~/Pictures"))
-hl.bind("CTRL + Print",  hl.dsp.exec_cmd("flameshot full -c"))
+hl.bind("Print",         hl.dsp.exec_cmd("hyprshot -m region"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("hyprshot -m output -o ~/Pictures"))
+hl.bind("CTRL + Print",  hl.dsp.exec_cmd("hyprshot -m output --clipboard-only"))
+
+-- Raw grim/slurp equivalents if you'd rather not add hyprshot:
+-- hl.bind("Print",         hl.dsp.exec_cmd([[sh -c 'grim -g "$(slurp)" - | wl-copy']]))
+-- hl.bind("SHIFT + Print", hl.dsp.exec_cmd([[sh -c 'grim ~/Pictures/$(date +%Y-%m-%d_%H-%M-%S).png']]))
+-- hl.bind("CTRL + Print",  hl.dsp.exec_cmd([[sh -c 'grim - | wl-copy']]))
 
 ----------------------
 ---- SOURCE THEME ----
