@@ -1,0 +1,16 @@
+/*
+   Noctalia rofi color TEMPLATE (source).
+   Noctalia renders this into noctalia-colors.rasi with the live palette.
+   The trailing 2-hex digits on some colors are alpha (RRGGBBAA), e.g. F2 ~= 95%.
+*/
+* {
+    nocta-bg:        {{colors.surface.default.hex}}F2;              /* window / search bg (~95%) */
+    nocta-panel:     {{colors.surface_container.default.hex}}F2;    /* results panel bg */
+    nocta-sel:       {{colors.surface_container_high.default.hex}}; /* selected row fill */
+    nocta-fg:        {{colors.on_surface.default.hex}};             /* main text */
+    nocta-fg-dim:    {{colors.on_surface_variant.default.hex}};     /* placeholder / dim text */
+    nocta-accent:    {{colors.primary.default.hex}};               /* prompt / highlights */
+    nocta-on-accent: {{colors.surface.default.hex}};               /* dark text on accent fills */
+    nocta-border:    {{colors.primary.default.hex}}38;             /* subtle accent border (~22%) */
+    nocta-urgent:    {{colors.error.default.hex}};                 /* urgent / errors */
+}

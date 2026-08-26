@@ -1,0 +1,16 @@
+/*
+   Fallback colors so rofi renders before Noctalia's first generation.
+   Noctalia OVERWRITES this file on the next scheme change — don't hand-edit;
+   edit noctalia-colors-template.rasi instead.
+*/
+* {
+    nocta-bg:        #141314F2;
+    nocta-panel:     #1e1d20F2;
+    nocta-sel:       #47464c99;
+    nocta-fg:        #e5e1e3;
+    nocta-fg-dim:    #919096;
+    nocta-accent:    #dabfce;
+    nocta-on-accent: #141314;
+    nocta-border:    #dabfce38;
+    nocta-urgent:    #ffb4ab;
+}

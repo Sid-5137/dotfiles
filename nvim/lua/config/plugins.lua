@@ -1,12 +1,23 @@
 require("lazy").setup({
 
-	-- Colorscheme
+	-- Colorscheme: base16, driven by Noctalia's generated palette
 	{
-		"shaunsingh/nord.nvim",
+		"RRethy/base16-nvim",
 		lazy = false,
 		priority = 1000,
 		config = function()
-			vim.cmd("colorscheme nord")
+			-- Noctalia renders lua/matugen-template.lua -> lua/matugen.lua with the
+			-- live palette. Load it if present; otherwise fall back to an on-brand
+			-- base16 scheme so Neovim always has colors (e.g. before the first render).
+			local ok = pcall(function() require("matugen").setup() end)
+			if not ok then
+				require("base16-colorscheme").setup({
+					base00 = "#141314", base01 = "#1e1d20", base02 = "#47464c", base03 = "#919096",
+					base04 = "#c7c5ce", base05 = "#e5e1e3", base06 = "#e5e1e3", base07 = "#ffffff",
+					base08 = "#ffb4ab", base09 = "#dabfce", base0A = "#c7c5ce", base0B = "#c5c5d8",
+					base0C = "#c7c5ce", base0D = "#dabfce", base0E = "#c5c5d8", base0F = "#ffb4ab",
+				})
+			end
 		end,
 	},
 
@@ -33,22 +44,28 @@ require("lazy").setup({
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter.config").setup({
-				ensure_installed = { "python", "lua", "bash" },
+			local ok, ts = pcall(require, "nvim-treesitter.configs")
+			if not ok then
+				vim.notify("nvim-treesitter not built yet; run :Lazy build nvim-treesitter, then restart", vim.log.levels.WARN)
+				return
+			end
+			ts.setup({
+				ensure_installed = { "python", "lua", "bash", "rust", "toml", "json", "markdown", "vimdoc" },
 				highlight = { enable = true },
+				indent = { enable = true },
 			})
 		end,
 	},
 
-	-- Statusline
+	-- Statusline (theme follows the active colorscheme)
 	{
 		"nvim-lualine/lualine.nvim",
 		config = function()
-			require("lualine").setup({ options = { theme = "nord" } })
+			require("lualine").setup({ options = { theme = "auto" } })
 		end,
 	},
 
-	-- LSP manager
+	-- LSP installer
 	{
 		"williamboman/mason.nvim",
 		config = function()
@@ -56,7 +73,7 @@ require("lazy").setup({
 		end,
 	},
 
-	-- Bridges mason with lspconfig
+	-- Bridges mason with lspconfig (python only; rust is handled by rustaceanvim)
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
@@ -71,8 +88,36 @@ require("lazy").setup({
 	{
 		"neovim/nvim-lspconfig",
 		config = function()
+			-- Feed nvim-cmp's completion capabilities to every server
+			local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+			if ok then
+				vim.lsp.config("*", { capabilities = cmp_lsp.default_capabilities() })
+			end
 			vim.lsp.config("basedpyright", {})
 			vim.lsp.enable("basedpyright")
+		end,
+	},
+
+	-- Rust: rustaceanvim wires up rust-analyzer, clippy, runnables, macros, etc.
+	{
+		"mrcjkb/rustaceanvim",
+		lazy = false, -- it lazy-loads itself on rust files; don't set ft/opts
+		init = function()
+			vim.g.rustaceanvim = {
+				server = {
+					default_settings = {
+						["rust-analyzer"] = {
+							cargo = { allFeatures = true },
+							checkOnSave = true,
+							check = { command = "clippy" },
+							procMacro = { enable = true },
+							inlayHints = {
+								lifetimeElisionHints = { enable = "always" },
+							},
+						},
+					},
+				},
+			}
 		end,
 	},
 
@@ -129,13 +174,20 @@ require("lazy").setup({
 		dependencies = { "nvim-lua/plenary.nvim" },
 	},
 
-	-- Which-key
+	-- Which-key with group labels
 	{
 		"folke/which-key.nvim",
 		event = "VeryLazy",
 		config = function()
-			require("which-key").setup({
-				preset = "helix",
+			local wk = require("which-key")
+			wk.setup({ preset = "helix" })
+			wk.add({
+				{ "<leader>f", group = "Find" },
+				{ "<leader>p", group = "Python" },
+				{ "<leader>g", group = "Git" },
+				{ "<leader>c", group = "Code/LSP" },
+				{ "<leader>d", group = "Diagnostics" },
+				{ "<leader>r", group = "Rust/Rename" },
 			})
 		end,
 	},
@@ -177,17 +229,18 @@ require("lazy").setup({
 		end,
 	},
 
-	-- Ruff format on save
+	-- Format on save: ruff (python) + rustfmt (rust)
 	{
 		"stevearc/conform.nvim",
 		config = function()
 			require("conform").setup({
 				formatters_by_ft = {
 					python = { "ruff_format" },
+					rust = { "rustfmt" },
 				},
 				format_on_save = {
 					timeout_ms = 500,
-					lsp_fallback = true,
+					lsp_format = "fallback",
 				},
 			})
 		end,
